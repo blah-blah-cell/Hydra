@@ -15,7 +15,7 @@ namespace HydraMenu.modules.self
 		}
 
 		public bool WalkDuringMeetings { get; set; } = true;
-		public bool AutoDismissUI { get; set; } = false;
+		public static bool IsMeetingHidden { get; private set; } = false;
 
 		[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Update))]
 		class OnMeetingUpdate
@@ -36,36 +36,53 @@ namespace HydraMenu.modules.self
 		{
 			static void Postfix(MeetingHud __instance)
 			{
+				IsMeetingHidden = false;
 				if(!Instance.Enabled) return;
 
 				if(Instance.WalkDuringMeetings && PlayerControl.LocalPlayer != null)
 				{
 					PlayerControl.LocalPlayer.moveable = true;
 				}
+			}
+		}
 
-				if(Instance.AutoDismissUI && __instance != null)
+		[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Close))]
+		class OnMeetingClose
+		{
+			static void Prefix()
+			{
+				IsMeetingHidden = false;
+				if(MeetingHud.Instance != null && MeetingHud.Instance.transform != null)
 				{
-					DismissLocalMeeting();
+					MeetingHud.Instance.transform.localScale = Vector3.one;
 				}
 			}
 		}
 
-		public static void DismissLocalMeeting()
+		public static void ToggleMeetingScreenVisibility()
 		{
-			if(MeetingHud.Instance == null) return;
+			if(MeetingHud.Instance == null || MeetingHud.Instance.transform == null)
+			{
+				Hydra.notifications.Send("Meeting Bypass", "No active meeting to toggle.", 3);
+				return;
+			}
 
 			try
 			{
-				MeetingHud.Instance.Close();
+				IsMeetingHidden = !IsMeetingHidden;
+				MeetingHud.Instance.transform.localScale = IsMeetingHidden ? Vector3.zero : Vector3.one;
+
 				if(PlayerControl.LocalPlayer != null)
 				{
 					PlayerControl.LocalPlayer.moveable = true;
 				}
-				Hydra.notifications.Send("Meeting Bypass", "Meeting UI dismissed locally. You are free to move.", 3);
+
+				string status = IsMeetingHidden ? "hidden (walkthrough mode)" : "restored";
+				Hydra.notifications.Send("Meeting Bypass", $"Meeting screen {status}.", 3);
 			}
 			catch(Exception ex)
 			{
-				Hydra.Log.LogError($"[MeetingBypass] Error dismissing local meeting: {ex.Message}");
+				Hydra.Log.LogError($"[MeetingBypass] Error toggling meeting screen: {ex.Message}");
 			}
 		}
 
@@ -84,8 +101,8 @@ namespace HydraMenu.modules.self
 				}
 				else
 				{
-					DismissLocalMeeting();
-					Hydra.notifications.Send("Meeting Bypass", "Vanilla server detected: dismissed locally only.", 4);
+					ToggleMeetingScreenVisibility();
+					Hydra.notifications.Send("Meeting Bypass", "Vanilla server: meeting screen hidden locally (safe).", 4);
 				}
 			}
 			catch(Exception ex)

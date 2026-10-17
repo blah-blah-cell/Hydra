@@ -42,9 +42,9 @@ namespace HydraMenu.ui.sections
 			ModuleManager.meetingBypass.WalkDuringMeetings = GUILayout.Toggle(ModuleManager.meetingBypass.WalkDuringMeetings, "Walk During Meetings (Non-Host Free Move)");
 
 			GUILayout.BeginHorizontal();
-			if(GUILayout.Button("Dismiss Meeting Screen"))
+			if(GUILayout.Button(MeetingBypass.IsMeetingHidden ? "Show Meeting Screen" : "Hide Meeting Screen (Walk Free)"))
 			{
-				MeetingBypass.DismissLocalMeeting();
+				MeetingBypass.ToggleMeetingScreenVisibility();
 			}
 
 			if(GUILayout.Button("Force Complete Voting (Wire/Local)"))

@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 
 namespace HydraMenu.modules.self
 {
@@ -62,7 +62,7 @@ namespace HydraMenu.modules.self
 
 		private void OnMeetingEnd()
 		{
-			if(PlayerControl.LocalPlayer.Data.IsDead) return;
+			if(PlayerControl.LocalPlayer == null || PlayerControl.LocalPlayer.Data == null || PlayerControl.LocalPlayer.Data.IsDead || ShipStatus.Instance == null) return;
 
 			Hydra.Log.LogInfo("Meeting has ended, resending Immortality RPC to retain immortal status");
 			VentilationSystem.Update(VentilationSystem.Operation.Enter, CUSTOM_VENT_ID);
@@ -74,7 +74,7 @@ namespace HydraMenu.modules.self
 			EventCoordinator.OnPlayerMurder += OnPlayerMurder;
 			EventCoordinator.OnMeetingEnd += OnMeetingEnd;
 
-			if(PlayerControl.LocalPlayer != null)
+			if(PlayerControl.LocalPlayer != null && ShipStatus.Instance != null)
 			{
 				Hydra.Log.LogInfo("Immortality was enabled, sending a VentilationSystem update with operation Enter");
 				VentilationSystem.Update(VentilationSystem.Operation.Enter, CUSTOM_VENT_ID);
@@ -87,7 +87,7 @@ namespace HydraMenu.modules.self
 			EventCoordinator.OnPlayerMurder -= OnPlayerMurder;
 			EventCoordinator.OnMeetingEnd -= OnMeetingEnd;
 
-			if(PlayerControl.LocalPlayer != null)
+			if(PlayerControl.LocalPlayer != null && ShipStatus.Instance != null)
 			{
 				Hydra.Log.LogInfo("Immortality was disabled, sending a VentilationSystem update with operation Exit");
 				VentilationSystem.Update(VentilationSystem.Operation.Exit, CUSTOM_VENT_ID);
