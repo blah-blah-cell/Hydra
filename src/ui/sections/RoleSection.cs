@@ -19,14 +19,6 @@ namespace HydraMenu.ui.sections
 
 		public override void Render()
 		{
-			string authorityStatus = AmongUsClient.Instance.AmHost
-				? "<color=green>[Host Mode: Wire Sync Active]</color>"
-				: (!Utilities.IsAnticheatPresent()
-					? "<color=cyan>[Modded/Local Lobby: Wire Sync Active]</color>"
-					: "<color=yellow>[Vanilla Server: Client-Side Capability Emulation]</color>");
-
-			GUILayout.Label($"Role Authority Status: {authorityStatus}");
-
 			ModuleManager.ventAsCrewmate.Enabled = GUILayout.Toggle(ModuleManager.ventAsCrewmate.Enabled, "Vent As Crewmate");
 			ModuleManager.moveInVents.Enabled = GUILayout.Toggle(ModuleManager.moveInVents.Enabled, "Move In Vents");
 
@@ -45,7 +37,7 @@ namespace HydraMenu.ui.sections
 			ModuleManager.noKillChecks.KillGhosts = GUILayout.Toggle(ModuleManager.noKillChecks.KillGhosts, "Kill Ghosts (Host-only)");
 
 			GUILayout.Space(5);
-			GUILayout.Label($"Role Selection (Current Target: {selectedRole}):");
+			GUILayout.Label($"Role Selection (Target: {selectedRole}):");
 
 			// Quick Role Grid (Rows of 4)
 			for(int r = 0; r < quickRoles.Length; r += 4)
@@ -69,17 +61,11 @@ namespace HydraMenu.ui.sections
 			GUILayout.BeginHorizontal();
 			selectedRole = Controls.HorizontalRoleSlider(selectedRole);
 
-			string applyBtnLabel = "Apply Role " + (AmongUsClient.Instance.AmHost || !Utilities.IsAnticheatPresent() ? "(Wire Sync)" : "(Client Emulation)");
-			if(GUILayout.Button(applyBtnLabel))
+			if(GUILayout.Button("Update Role"))
 			{
 				UpdateRole(selectedRole);
 			}
 			GUILayout.EndHorizontal();
-
-			if(GUILayout.Button("Unlock All Role Superpowers (Kill + Vent + Sabotage)"))
-			{
-				UnlockAllSuperpowers();
-			}
 		}
 
 		public static void UpdateRole(RoleTypes role)
@@ -98,74 +84,16 @@ namespace HydraMenu.ui.sections
 				RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
 			}
 
-			// If Host OR if in modded/host-authoritative/private lobby without anticheat, broadcast over wire!
-			if(AmongUsClient.Instance.AmHost || !Utilities.IsAnticheatPresent())
+			if(AmongUsClient.Instance.AmHost)
 			{
-				Hydra.Log.LogInfo("Broadcasting SetRole RPC over the wire");
+				Hydra.Log.LogInfo("Since we are host, we can send the SetRole RPC to sync the new role to the server");
 				if(PlayerControl.LocalPlayer != null)
 				{
 					PlayerControl.LocalPlayer.RpcSetRole(role, true);
 				}
-				Hydra.notifications.Send("Update Role", $"Role {role} broadcast to lobby over the wire.", 4);
-			}
-			else
-			{
-				Hydra.Log.LogInfo("Vanilla server detected: unlocking capabilities client-side");
-				ApplyRoleCapabilities(role);
-				Hydra.notifications.Send("Update Role", $"Role {role} emulated client-side with full abilities unlocked.", 4);
-			}
-		}
-
-		public static void ApplyRoleCapabilities(RoleTypes role)
-		{
-			bool isImpostor = RoleManager.IsImpostorRole(role);
-
-			if(isImpostor || role == RoleTypes.Shapeshifter || role == RoleTypes.Phantom || role == RoleTypes.Viper)
-			{
-				if(HudManager.Instance != null && HudManager.Instance.KillButton != null)
-				{
-					HudManager.Instance.KillButton.gameObject.SetActive(true);
-				}
-				ModuleManager.noKillChecks.Enabled = true;
-				ModuleManager.ventAsCrewmate.Enabled = true;
-				ModuleManager.moveInVents.Enabled = true;
-				ModuleManager.unlockSabotageButton.SabotageAsCrewmate = true;
-			}
-			else if(role == RoleTypes.Engineer)
-			{
-				ModuleManager.ventAsCrewmate.Enabled = true;
-				ModuleManager.moveInVents.Enabled = true;
 			}
 
-			if(HudManager.Instance != null && HudManager.Instance.ImpostorVentButton != null && ModuleManager.ventAsCrewmate.Enabled)
-			{
-				HudManager.Instance.ImpostorVentButton.gameObject.SetActive(true);
-			}
-
-			if(HudManager.Instance != null && HudManager.Instance.SabotageButton != null && ModuleManager.unlockSabotageButton.SabotageAsCrewmate)
-			{
-				HudManager.Instance.SabotageButton.gameObject.SetActive(true);
-			}
-		}
-
-		public static void UnlockAllSuperpowers()
-		{
-			ModuleManager.noKillChecks.Enabled = true;
-			ModuleManager.noKillChecks.KillOtherImpostors = true;
-			ModuleManager.ventAsCrewmate.Enabled = true;
-			ModuleManager.moveInVents.Enabled = true;
-			ModuleManager.unlockSabotageButton.SabotageAsCrewmate = true;
-			ModuleManager.unlockSabotageButton.SabotageInVents = true;
-			ModuleManager.noSabotageCooldown.Enabled = true;
-
-			if(HudManager.Instance != null)
-			{
-				if(HudManager.Instance.KillButton != null) HudManager.Instance.KillButton.gameObject.SetActive(true);
-				if(HudManager.Instance.ImpostorVentButton != null) HudManager.Instance.ImpostorVentButton.gameObject.SetActive(true);
-				if(HudManager.Instance.SabotageButton != null) HudManager.Instance.SabotageButton.gameObject.SetActive(true);
-			}
-
-			Hydra.notifications.Send("Superpowers Unlocked", "Kill, Vent, and Sabotage controls are now fully active!", 4);
+			Hydra.notifications.Send("Update Role", $"Your role has been updated to {role}.");
 		}
 	}
 }
