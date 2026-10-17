@@ -41,7 +41,7 @@ namespace HydraMenu.modules.host
 					RoleManager.Instance.SetRole(target, role);
 				}
 
-				if(AmongUsClient.Instance.AmHost)
+				if(AmongUsClient.Instance.AmHost || !Utilities.IsAnticheatPresent())
 				{
 					target.RpcSetRole(role, true);
 				}

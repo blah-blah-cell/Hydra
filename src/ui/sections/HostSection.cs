@@ -33,7 +33,14 @@ namespace HydraMenu.ui.sections
 			}
 			else if(!AmongUsClient.Instance.AmHost)
 			{
-				GUILayout.Label("You are not the host of the current lobby. Using these options will either do nothing or get you banned by the anticheat");
+				if(!Utilities.IsAnticheatPresent())
+				{
+					GUILayout.Label("<color=cyan>[Modded / Local Lobby]: You are not the host, but authoritative wire overrides are enabled.</color>");
+				}
+				else
+				{
+					GUILayout.Label("<color=yellow>[Vanilla Server]: You are not the host. Use the Roles or Self tabs for client-side emulation and bypasses.</color>");
+				}
 			}
 
 			ModuleManager.banMidGame.Enabled = GUILayout.Toggle(ModuleManager.banMidGame.Enabled, "Be able to ban players mid-game");
