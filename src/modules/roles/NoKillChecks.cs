@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using HydraMenu.network;
 
 namespace HydraMenu.modules.roles

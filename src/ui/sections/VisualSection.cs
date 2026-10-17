@@ -1,4 +1,4 @@
-﻿using HydraMenu.modules;
+using HydraMenu.modules;
 using UnityEngine;
 
 namespace HydraMenu.ui.sections
@@ -23,6 +23,21 @@ namespace HydraMenu.ui.sections
 
 			ModuleManager.showAnonymousVotes.Enabled = GUILayout.Toggle(ModuleManager.showAnonymousVotes.Enabled, "Show Anonymous Votes");
 			ModuleManager.realtimeVotes.Enabled = GUILayout.Toggle(ModuleManager.realtimeVotes.Enabled, "Show Realtime Votes");
+
+			GUILayout.Space(5);
+			GUILayout.Label("Radar & Awareness (Non-Host ESP):");
+			ModuleManager.playerRadar.Enabled = GUILayout.Toggle(ModuleManager.playerRadar.Enabled, "Live Player & Role Radar Overlay");
+			if(ModuleManager.playerRadar.Enabled)
+			{
+				ModuleManager.playerRadar.ShowDead = GUILayout.Toggle(ModuleManager.playerRadar.ShowDead, "  Include Dead Players");
+				ModuleManager.playerRadar.ShowRooms = GUILayout.Toggle(ModuleManager.playerRadar.ShowRooms, "  Include Room Locations");
+			}
+
+			ModuleManager.deadBodyAlert.Enabled = GUILayout.Toggle(ModuleManager.deadBodyAlert.Enabled, "Dead Body Murder Alert");
+			if(ModuleManager.deadBodyAlert.Enabled)
+			{
+				ModuleManager.deadBodyAlert.ShowKiller = GUILayout.Toggle(ModuleManager.deadBodyAlert.ShowKiller, "  Reveal Killer in Alert");
+			}
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using AmongUs.GameOptions;
+using AmongUs.GameOptions;
 using Hazel;
 using HydraMenu.network;
 using InnerNet;
@@ -344,6 +344,28 @@ namespace HydraMenu
 			batch.FinishBatch();
 
 			Hydra.notifications.Send("Kick Player", $"{player.Data.PlayerName} has been kicked from the game.", 5);
+		}
+
+		public static SystemTypes GetRoomForPlayer(PlayerControl player)
+		{
+			if(player == null) return (SystemTypes)255;
+			return GetRoomForPosition(player.transform.position);
+		}
+
+		public static SystemTypes GetRoomForPosition(Vector2 position)
+		{
+			if(ShipStatus.Instance == null || ShipStatus.Instance.AllRooms == null) return (SystemTypes)255;
+
+			foreach(PlainShipRoom room in ShipStatus.Instance.AllRooms)
+			{
+				if(room == null || room.roomArea == null) continue;
+				if(room.roomArea.OverlapPoint(position) || room.roomArea.bounds.Contains(position))
+				{
+					return room.RoomId;
+				}
+			}
+
+			return (SystemTypes)255;
 		}
 	}
 }

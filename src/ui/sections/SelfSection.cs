@@ -28,8 +28,6 @@ namespace HydraMenu.ui.sections
 
 			ModuleManager.alwaysShowTaskAnimations.Enabled = GUILayout.Toggle(ModuleManager.alwaysShowTaskAnimations.Enabled, "Always Show Task Animations");
 			ModuleManager.immortality.Enabled = GUILayout.Toggle(ModuleManager.immortality.Enabled, "Become Immortal");
-			ModuleManager.antiEject.Enabled = GUILayout.Toggle(ModuleManager.antiEject.Enabled, "Anti-Eject Immunity (Survive All Votes)");
-			ModuleManager.disableGameEnd.Enabled = GUILayout.Toggle(ModuleManager.disableGameEnd.Enabled, "Prevent Game Over (Infinite Match)");
 			ModuleManager.disableVentClean.Enabled = GUILayout.Toggle(ModuleManager.disableVentClean.Enabled, "Vent Clean Protection (Never Booted)");
 			ModuleManager.noLadderCooldown.Enabled = GUILayout.Toggle(ModuleManager.noLadderCooldown.Enabled, "No Ladder Cooldown");
 			ModuleManager.noZiplineCooldown.Enabled = GUILayout.Toggle(ModuleManager.noZiplineCooldown.Enabled, "No Zipline Cooldown");
@@ -37,21 +35,27 @@ namespace HydraMenu.ui.sections
 			ModuleManager.updateStatsFreeplay.Enabled = GUILayout.Toggle(ModuleManager.updateStatsFreeplay.Enabled, "Update Stats in Freeplay");
 
 			GUILayout.Space(5);
-			GUILayout.Label("Meeting Bypasses & Non-Host Controls:");
-			ModuleManager.meetingBypass.Enabled = GUILayout.Toggle(ModuleManager.meetingBypass.Enabled, "Enable Meeting Bypass");
-			ModuleManager.meetingBypass.WalkDuringMeetings = GUILayout.Toggle(ModuleManager.meetingBypass.WalkDuringMeetings, "Walk During Meetings (Non-Host Free Move)");
-
+			GUILayout.Label("Portable Ship Consoles (Access Anywhere):");
 			GUILayout.BeginHorizontal();
+			if(GUILayout.Button("Toggle Admin Map"))
+			{
+				PortableConsoles.ToggleAdminMap();
+			}
+			if(GUILayout.Button("Toggle Sabotage Map"))
+			{
+				PortableConsoles.ToggleSabotageMap();
+			}
+			GUILayout.EndHorizontal();
+
+			GUILayout.Space(5);
+			GUILayout.Label("Meeting Mobility (Safe Non-Host):");
+			ModuleManager.meetingBypass.Enabled = GUILayout.Toggle(ModuleManager.meetingBypass.Enabled, "Enable Meeting Walkthrough");
+			ModuleManager.meetingBypass.WalkDuringMeetings = GUILayout.Toggle(ModuleManager.meetingBypass.WalkDuringMeetings, "Walk During Meetings (Free Move)");
+
 			if(GUILayout.Button(MeetingBypass.IsMeetingHidden ? "Show Meeting Screen" : "Hide Meeting Screen (Walk Free)"))
 			{
 				MeetingBypass.ToggleMeetingScreenVisibility();
 			}
-
-			if(GUILayout.Button("Force Complete Voting (Wire/Local)"))
-			{
-				MeetingBypass.ForceEndMeetingWire();
-			}
-			GUILayout.EndHorizontal();
 
 			if(GUILayout.Button("Call Meeting"))
 			{

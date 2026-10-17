@@ -1,4 +1,4 @@
-﻿using HydraMenu.ui.sections;
+using HydraMenu.ui.sections;
 using System;
 using UnityEngine;
 
@@ -102,6 +102,9 @@ namespace HydraMenu.ui
 
 		public void OnGUI()
 		{
+			// Render HUD overlays even when main menu window is closed
+			modules.visuals.PlayerRadar.RenderRadarOverlay();
+
 			// https://docs.unity3d.com/6000.3/Documentation/Manual/GUIScriptingGuide.html
 			if(!visible) return;
 

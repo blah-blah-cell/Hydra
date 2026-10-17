@@ -53,11 +53,11 @@ namespace HydraMenu.modules
 
 		// Self
 		public static AlwaysShowTaskAnimations alwaysShowTaskAnimations = new AlwaysShowTaskAnimations();
-		public static AntiEject antiEject = new AntiEject();
 		public static Immortality immortality = new Immortality();
 		public static MeetingBypass meetingBypass = new MeetingBypass();
 		public static NoLadderCooldown noLadderCooldown = new NoLadderCooldown();
 		public static NoZiplineCooldown noZiplineCooldown = new NoZiplineCooldown();
+		public static PortableConsoles portableConsoles = new PortableConsoles();
 		public static SpeedModifier speedModifier = new SpeedModifier();
 		public static UnlimitedMeetings unlimitedMeetings = new UnlimitedMeetings();
 		public static UpdateStatsFreeplay updateStatsFreeplay = new UpdateStatsFreeplay();
@@ -79,8 +79,10 @@ namespace HydraMenu.modules
 		// Visual
 		public static AccurateDisconnectReason accurateDisconnectReason = new AccurateDisconnectReason();
 		public static AlwaysVisibleChat alwaysVisibleChat = new AlwaysVisibleChat();
+		public static DeadBodyAlert deadBodyAlert = new DeadBodyAlert();
 		public static Fullbright fullbright = new Fullbright();
 		public static NoSeekerAnimation noSeekerAnimation = new NoSeekerAnimation();
+		public static PlayerRadar playerRadar = new PlayerRadar();
 		public static RealtimeVotes realtimeVotes = new RealtimeVotes();
 		public static ShowAnonymousVotes showAnonymousVotes = new ShowAnonymousVotes();
 		public static ShowGhostMessages showGhostMessages = new ShowGhostMessages();
@@ -127,11 +129,11 @@ namespace HydraMenu.modules
 				ventAsCrewmate,
 
 				alwaysShowTaskAnimations,
-				antiEject,
 				immortality,
 				meetingBypass,
 				noLadderCooldown,
 				noZiplineCooldown,
+				portableConsoles,
 				speedModifier,
 				unlimitedMeetings,
 				updateStatsFreeplay,
@@ -150,8 +152,10 @@ namespace HydraMenu.modules
 
 				accurateDisconnectReason,
 				alwaysVisibleChat,
+				deadBodyAlert,
 				fullbright,
 				noSeekerAnimation,
+				playerRadar,
 				realtimeVotes,
 				showAnonymousVotes,
 				showGhostMessages,
