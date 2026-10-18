@@ -22,6 +22,11 @@ namespace HydraMenu.ui.sections
 		private int selectedRolePlayerIndex = 0;
 		private RoleTypes selectedPlayerRole = RoleTypes.Impostor;
 
+		private float hostCustomSpeed = 1.0f;
+		private float hostCustomKillCooldown = 30.0f;
+		private int hostCustomDiscussionTime = 15;
+		private int hostCustomVotingTime = 60;
+
 		public static readonly Queue<InnerNetObject> lobbyList = new Queue<InnerNetObject>();
 		public static readonly Queue<InnerNetObject> shipList = new Queue<InnerNetObject>();
 
@@ -270,10 +275,17 @@ namespace HydraMenu.ui.sections
 			ModuleManager.voteImmune.Enabled = Controls.PlayerSpecificToggle("Vote Immune", PlayerControl.LocalPlayer, ModuleManager.voteImmune.targets);
 			Hydra.routines.voteSpammer.Enabled = Controls.GlobalPlayerSpecificToggle("Spam Votes", Hydra.routines.voteSpammer.targets);
 
+			GUILayout.BeginHorizontal();
 			if(GUILayout.Button("Close Meeting"))
 			{
 				CloseMeeting();
 			}
+
+			if(GUILayout.Button("Force Skip Vote (Tie Meeting)"))
+			{
+				ForceSkipMeeting();
+			}
+			GUILayout.EndHorizontal();
 
 			GUILayout.Space(5);
 			GUILayout.Label("Shapeshift Controls:");
@@ -315,6 +327,52 @@ namespace HydraMenu.ui.sections
 
 			GUILayout.Label($"Color randomization delay: {Hydra.routines.discoHost.RandomizationDelay:F2}s");
 			Hydra.routines.discoHost.RandomizationDelay = GUILayout.HorizontalSlider(Hydra.routines.discoHost.RandomizationDelay, 0.1f, 2.0f);
+
+			GUILayout.Space(5);
+			GUILayout.Label("Live Lobby Settings Modifier (Host Wire Sync):");
+			GUILayout.Label($"Player Speed: {hostCustomSpeed:F2}x");
+			hostCustomSpeed = GUILayout.HorizontalSlider(hostCustomSpeed, 0.5f, 3.0f);
+
+			GUILayout.Label($"Kill Cooldown: {hostCustomKillCooldown:F0}s");
+			hostCustomKillCooldown = GUILayout.HorizontalSlider(hostCustomKillCooldown, 10f, 60f);
+
+			GUILayout.Label($"Discussion Time: {hostCustomDiscussionTime}s");
+			hostCustomDiscussionTime = (int)GUILayout.HorizontalSlider(hostCustomDiscussionTime, 0f, 120f);
+
+			GUILayout.Label($"Voting Time: {hostCustomVotingTime}s");
+			hostCustomVotingTime = (int)GUILayout.HorizontalSlider(hostCustomVotingTime, 15f, 120f);
+
+			if(GUILayout.Button("Sync Settings to Lobby (Over Wire)"))
+			{
+				SyncLiveGameOptions();
+			}
+
+			GUILayout.Space(5);
+			GUILayout.Label("Mass Teleportation (Host Authority):");
+			GUILayout.BeginHorizontal();
+			if(GUILayout.Button("Teleport All to Me"))
+			{
+				if(PlayerControl.LocalPlayer != null)
+				{
+					Teleporter.TeleportAllTo(PlayerControl.LocalPlayer.transform.position);
+					Hydra.notifications.Send("Teleporter", "Teleported all players to your position.", 3);
+				}
+			}
+
+			if(GUILayout.Button("Teleport All to Cafeteria"))
+			{
+				Vector2 targetPos = (ShipStatus.Instance != null) ? ShipStatus.Instance.InitialSpawnCenter : Vector2.zero;
+				Teleporter.TeleportAllTo(targetPos);
+				Hydra.notifications.Send("Teleporter", "Teleported all players to Cafeteria spawn.", 3);
+			}
+			GUILayout.EndHorizontal();
+
+			GUILayout.Space(5);
+			GUILayout.Label("Ship Cleanup:");
+			if(GUILayout.Button("Despawn All Dead Bodies"))
+			{
+				CleanAllDeadBodies();
+			}
 		}
 
 		private void ForceStartGame()
@@ -531,6 +589,73 @@ namespace HydraMenu.ui.sections
 
 				yield return Effects.Wait(0.05f);
 			}
+		}
+
+		private void SyncLiveGameOptions()
+		{
+			if(!AmongUsClient.Instance.AmHost)
+			{
+				Hydra.notifications.Send("Game Options", "Must be the lobby host to modify options over wire.", 4);
+				return;
+			}
+
+			if(GameManager.Instance == null || GameManager.Instance.LogicOptions == null || GameManager.Instance.LogicOptions.currentGameOptions == null)
+			{
+				Hydra.notifications.Send("Game Options", "Options not initialized yet.", 3);
+				return;
+			}
+
+			try
+			{
+				IGameOptions options = GameOptions.CreateCloneOptions(GameManager.Instance.LogicOptions.currentGameOptions);
+				options.SetFloat(FloatOptionNames.PlayerSpeedMod, hostCustomSpeed);
+				options.SetFloat(FloatOptionNames.KillCooldown, hostCustomKillCooldown);
+				options.SetInt(Int32OptionNames.DiscussionTime, hostCustomDiscussionTime);
+				options.SetInt(Int32OptionNames.VotingTime, hostCustomVotingTime);
+
+				GameManager.Instance.LogicOptions.SetGameOptions(options);
+				GameOptions.SendGameOptionsToClient(options, (int)OwnerIds.Everyone);
+				Hydra.notifications.Send("Game Options", "Synchronized updated game settings to all players!", 4);
+			}
+			catch(Exception ex)
+			{
+				Hydra.Log.LogError($"[HostSection] Error syncing options: {ex.Message}");
+			}
+		}
+
+		private void ForceSkipMeeting()
+		{
+			if(!AmongUsClient.Instance.AmHost)
+			{
+				Hydra.notifications.Send("Close Meeting", "This feature can only be used if you are the host of the lobby.", 4);
+				return;
+			}
+
+			if(MeetingHud.Instance == null)
+			{
+				Hydra.notifications.Send("Close Meeting", "This option can only be used during a meeting.", 4);
+				return;
+			}
+
+			BatchedMessage batch = new BatchedMessage();
+			batch.QueueVotingComplete(Array.Empty<MeetingHud.VoterState>(), null, true, false, 0);
+			batch.QueueCloseMeeting();
+			batch.FinishBatch();
+			Hydra.notifications.Send("Meeting", "Forced meeting conclusion with a tie.", 4);
+		}
+
+		private static void CleanAllDeadBodies()
+		{
+			DeadBody[] bodies = UnityEngine.Object.FindObjectsOfType<DeadBody>();
+			int count = bodies.Length;
+			foreach(DeadBody body in bodies)
+			{
+				if(body != null && body.gameObject != null)
+				{
+					UnityEngine.Object.Destroy(body.gameObject);
+				}
+			}
+			Hydra.notifications.Send("Ship Cleanup", $"Despawned {count} dead bodies from the ship.", 4);
 		}
 	}
 }

@@ -81,6 +81,7 @@ namespace HydraMenu.modules
 		public static AlwaysVisibleChat alwaysVisibleChat = new AlwaysVisibleChat();
 		public static DeadBodyAlert deadBodyAlert = new DeadBodyAlert();
 		public static Fullbright fullbright = new Fullbright();
+		public static LightImmunity lightImmunity = new LightImmunity();
 		public static NoSeekerAnimation noSeekerAnimation = new NoSeekerAnimation();
 		public static PlayerRadar playerRadar = new PlayerRadar();
 		public static RealtimeVotes realtimeVotes = new RealtimeVotes();
@@ -154,6 +155,7 @@ namespace HydraMenu.modules
 				alwaysVisibleChat,
 				deadBodyAlert,
 				fullbright,
+				lightImmunity,
 				noSeekerAnimation,
 				playerRadar,
 				realtimeVotes,

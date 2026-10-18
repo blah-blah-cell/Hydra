@@ -13,7 +13,16 @@ namespace HydraMenu.ui.sections
 			ModuleManager.noSeekerAnimation.Enabled = GUILayout.Toggle(ModuleManager.noSeekerAnimation.Enabled, "Skip Seeker Animation");
 			ModuleManager.accurateDisconnectReason.Enabled = GUILayout.Toggle(ModuleManager.accurateDisconnectReason.Enabled, "Use more accurate disconnection reasons");
 
-			ModuleManager.fullbright.Enabled = GUILayout.Toggle(ModuleManager.fullbright.Enabled, "Fullbright");
+			ModuleManager.fullbright.Enabled = GUILayout.Toggle(ModuleManager.fullbright.Enabled, "Fullbright (Disable All Darkness)");
+			ModuleManager.lightImmunity.Enabled = GUILayout.Toggle(ModuleManager.lightImmunity.Enabled, "Light Sabotage Immunity (Normal Vision on Lights Out)");
+			if(ModuleManager.lightImmunity.Enabled)
+			{
+				ModuleManager.lightImmunity.ImpostorVision = GUILayout.Toggle(ModuleManager.lightImmunity.ImpostorVision, "  Always Use Impostor Vision Range");
+				GUILayout.BeginHorizontal();
+				GUILayout.Label($"  Vision Multiplier: {ModuleManager.lightImmunity.CustomVisionMod:F1}x");
+				ModuleManager.lightImmunity.CustomVisionMod = GUILayout.HorizontalSlider(ModuleManager.lightImmunity.CustomVisionMod, 1.0f, 3.0f);
+				GUILayout.EndHorizontal();
+			}
 			ModuleManager.showProtections.Enabled = GUILayout.Toggle(ModuleManager.showProtections.Enabled, "Show Guardian Angel Protections");
 
 			ModuleManager.alwaysVisibleChat.Enabled = GUILayout.Toggle(ModuleManager.alwaysVisibleChat.Enabled, "Always Visible Chat");
